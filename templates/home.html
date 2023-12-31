@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+
+<h1>Welcome to Sales App</h1>
+
+<form action="{% url 'sales:api_daily_profit' %}" method="get">
+    <button type="submit">Generate Daily Profit</button>
+</form>
+
+<form action="{% url 'sales:api_monthly_profit' 12 %}" method="get">
+    <button type="submit">Generate Monthly Profit</button>
+</form>
+
+</body>
+</html>
