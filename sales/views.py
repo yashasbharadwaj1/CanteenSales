@@ -39,38 +39,49 @@ def calculate_daily_profit(date):
 
     return results
 
+
 def calculate_actual_profit_for_month(month, year):
     results = []
-    expenditures = Expenditure.objects.filter(date__month=month, date__year=year)
-    total_expenditure = expenditures.aggregate(Sum('amount_spent'))['amount_spent__sum'] or 0
-    logger.info(f'Total expenditure for month {month}: {total_expenditure}')
 
     for product in Product.objects.all():
         # Retrieve the related Inventory for the Product
-        inventory = Inventory.objects.filter(product=product, date__month=month, date__year=year).first()
+        inventory = Inventory.objects.filter(product=product).first()
 
         # If there is no related Inventory, skip this product
         if not inventory:
             continue
 
-        sales = Sales.objects.filter(date__month=month, date__year=year, product=product).aggregate(Sum('pieces_sold'))
-        pieces_sold_sum = sales['pieces_sold__sum'] or 0
-        logger.info(f'Monthly total pieces_sold_sum for month {month}: {pieces_sold_sum}')
-        total_selling_price = pieces_sold_sum * inventory.selling_price_per_piece
-        total_cost_price = pieces_sold_sum * inventory.cost_price_per_piece
-        total_profit = total_selling_price - total_cost_price
+        # Fetch expenditures for the specific product, month, and year
+        expenditures = Expenditure.objects.filter(product=product, date__month=month, date__year=year)
+        total_expenditure = expenditures.aggregate(Sum('amount_spent'))['amount_spent__sum'] or 0
+        logger.info(f'Total expenditure for {product.name} in month {month}: {total_expenditure}')
 
+        # Fetch additional information from the Inventory model
+        total_pieces = inventory.total_pieces
+        cost_price_per_piece = inventory.cost_price_per_piece
+        selling_price_per_piece = inventory.selling_price_per_piece
+
+        sales = Sales.objects.filter(date__month=month, product=product).aggregate(Sum('pieces_sold'))
+        pieces_sold_sum = sales['pieces_sold__sum'] or 0
+        logger.info(f'Monthly total pieces_sold_sum for {product.name} in month {month}: {pieces_sold_sum}')
+        total_selling_price = pieces_sold_sum * selling_price_per_piece
+        total_cost_price = pieces_sold_sum * cost_price_per_piece
+        total_profit = total_selling_price - total_cost_price
+        logger.info(f'Total profit for {product.name} in month {month}: {total_profit}')
+        logger.info(f'Total selling price for {product.name} in month {month}: {total_selling_price}')
+        logger.info(f'Total cost price for {product.name} in month {month}: {total_cost_price}')
+        
         actual_profit = total_profit - total_expenditure
         logger.info(f'Actual profit for {product.name} in month {month}: {actual_profit}')
 
         result = {
-            'month': month,
             'year': year,
+            'month': month,
             'product_name': product.name,
+            'total_pieces': total_pieces,
+            'cost_price_per_piece': cost_price_per_piece,
+            'selling_price_per_piece': selling_price_per_piece,
             'pieces_sold_sum': pieces_sold_sum,
-            'total_pieces': inventory.total_pieces,
-            'cost_price_per_piece': inventory.cost_price_per_piece,
-            'selling_price_per_piece': inventory.selling_price_per_piece,
             'total_selling_price': total_selling_price,
             'total_cost_price': total_cost_price,
             'total_expenditure': total_expenditure,
@@ -80,6 +91,7 @@ def calculate_actual_profit_for_month(month, year):
         results.append(result)
 
     return results
+
 
 def home(request):
     return render(request, 'home.html')
