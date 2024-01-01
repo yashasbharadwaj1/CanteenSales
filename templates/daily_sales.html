@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Sales</title>
+</head>
+<body>
+
+<h1>Daily Sales</h1>
+
+<form action="{% url 'sales:daily_sales' %}" method="post">
+    {% csrf_token %}
+    <label for="date">Select Date:</label>
+    <input type="date" id="date" name="date" required>
+    <button type="submit">Generate Daily Sales</button>
+</form>
+
+{% if daily_profit %}
+    <h2>Daily Sales Report</h2>
+    <table border="1">
+        <tr>
+            <th>Product Name</th>
+            <th>Date</th>
+            <th>Pieces Sold</th>
+            <th>Total Pieces</th>
+            <th>Cost Price per Piece</th>
+            <th>Selling Price per Piece</th>
+            <th>Total Selling Price</th>
+            <th>Total Cost Price</th>
+            <th>Profit</th>
+        </tr>
+        {% for entry in daily_profit %}
+            <tr>
+                <td>{{ entry.product_name }}</td>
+                <td>{{ entry.date }}</td>
+                <td>{{ entry.pieces_sold_sum }}</td>
+                <td>{{ entry.total_pieces }}</td>
+                <td>{{ entry.cost_price_per_piece }}</td>
+                <td>{{ entry.selling_price_per_piece }}</td>
+                <td>{{ entry.total_selling_price }}</td>
+                <td>{{ entry.total_cost_price }}</td>
+                <td>{{ entry.profit }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+</body>
+</html>

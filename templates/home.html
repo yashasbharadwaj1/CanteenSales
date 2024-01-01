@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,15 +5,15 @@
 </head>
 <body>
 
-<h1>Welcome to Sales App</h1>
+<h1>School Canteen Sales App</h1>
 
-<form action="{% url 'sales:api_daily_profit' %}" method="get">
-    <button type="submit">Generate Daily Profit</button>
-</form>
+<a href="{% url 'sales:daily_sales' %}">
+    <button>View Daily Sales</button>
+</a>
 
-<form action="{% url 'sales:api_monthly_profit' 12 %}" method="get">
-    <button type="submit">Generate Monthly Profit</button>
-</form>
+<a href="{% url 'sales:monthly_sales' %}">
+    <button>View Monthly Sales</button>
+</a>
 
 </body>
 </html>

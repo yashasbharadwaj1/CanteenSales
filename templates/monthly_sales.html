@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monthly Sales</title>
+</head>
+<body>
+
+<h1>Monthly Sales</h1>
+
+<form action="{% url 'sales:monthly_sales' %}" method="post">
+    {% csrf_token %}
+    <label for="month">Select Month:</label>
+    <input type="number" id="month" name="month" min="1" max="12" required>
+    <label for="year">Select Year:</label>
+    <input type="number" id="year" name="year" min="2000" max="2100" required>
+    <button type="submit">Generate Monthly Sales</button>
+</form>
+
+{% if monthly_profit %}
+    <h2>Monthly Sales Report</h2>
+    <table border="1">
+        <tr>
+            <th>Month</th>
+            <th>Year</th>
+            <th>Product Name</th>
+            <th>Pieces Sold</th>
+            <th>Total Pieces</th>
+            <th>Cost Price per Piece</th>
+            <th>Selling Price per Piece</th>
+            <th>Total Selling Price</th>
+            <th>Total Cost Price</th>
+            <th>Total Expenditure</th>
+            <th>Actual Profit</th>
+        </tr>
+        {% for entry in monthly_profit %}
+            <tr>
+                <td>{{ entry.month }}</td>
+                <td>{{ entry.year }}</td>
+                <td>{{ entry.product_name }}</td>
+                <td>{{ entry.pieces_sold_sum }}</td>
+                <td>{{ entry.total_pieces }}</td>
+                <td>{{ entry.cost_price_per_piece }}</td>
+                <td>{{ entry.selling_price_per_piece }}</td>
+                <td>{{ entry.total_selling_price }}</td>
+                <td>{{ entry.total_cost_price }}</td>
+                <td>{{ entry.total_expenditure }}</td>
+                <td>{{ entry.actual_profit }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+</body>
+</html>
