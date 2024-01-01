@@ -53,7 +53,11 @@ def calculate_actual_profit_for_month(month, year):
 
         # Fetch expenditures for the specific product, month, and year
         expenditures = Expenditure.objects.filter(product=product, date__month=month, date__year=year)
-        total_expenditure = expenditures.aggregate(Sum('amount_spent'))['amount_spent__sum'] or 0
+        aggregated_result = expenditures.aggregate(Sum('amount_spent'))
+        total_expenditure_raw = aggregated_result['amount_spent__sum']
+        total_expenditure = total_expenditure_raw or 0 
+        total_expenditure = round(total_expenditure, 2)
+        
         logger.info(f'Total expenditure for {product.name} in month {month}: {total_expenditure}')
 
         # Fetch additional information from the Inventory model
@@ -84,6 +88,7 @@ def calculate_actual_profit_for_month(month, year):
             'pieces_sold_sum': pieces_sold_sum,
             'total_selling_price': total_selling_price,
             'total_cost_price': total_cost_price,
+            'profit':total_profit,
             'total_expenditure': total_expenditure,
             'actual_profit': actual_profit,
         }
