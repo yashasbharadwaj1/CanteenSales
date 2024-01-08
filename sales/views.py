@@ -132,7 +132,9 @@ def calculate_actual_profit_for_month(month, year):
         sales = Sales.objects.filter(date__month=month, product=product).aggregate(
             Sum("pieces_sold")
         )
-        pieces_sold_sum = sales["pieces_sold__sum"] or 0
+        pieces_sold_sum = sales["pieces_sold__sum"] or 0 
+        if pieces_sold_sum == 0 and total_expenditure == 0:
+            continue
         total_pieces_sold_sum += pieces_sold_sum
         total_selling_price = pieces_sold_sum * selling_price_per_piece
         total_cost_price = pieces_sold_sum * cost_price_per_piece
@@ -154,7 +156,9 @@ def calculate_actual_profit_for_month(month, year):
             "actual_profit": actual_profit,
         }
 
-        results.append(result)
+        results.append(result) 
+    if total_pieces_sold_sum == 0:
+        return None
     total_result = {
         "year": year,
         "month": month,
@@ -204,7 +208,7 @@ def generate_daily_profit(request):
             except:
                 results = calculate_daily_profit(date)
                 if results is None:
-                    return JsonResponse({"message": f"No results found for {date}"})
+                    return JsonResponse({"message": f"Daily report not found  for {date}"})
                 else:
                     excel_file_path = generate_excel_file(results, filename)
                     upload_to_s3(excel_file_path, S3_FOLDER_DAILY, f"{filename}")
@@ -259,7 +263,7 @@ def generate_monthly_profit(request):
                 results = calculate_actual_profit_for_month(month, year)
                 if results is None:
                     return JsonResponse(
-                        {"message": f"No results found for {month}_{year}"}
+                        {"message": f"Monthly report not found for {month}_{year}"}
                     )
                 else:
                     excel_file_path = generate_excel_file(results, filename)
