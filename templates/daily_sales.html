@@ -76,6 +76,7 @@
     {% if success %}
         <p>File generated successfully. <a href="{% url 'sales:download_excel' %}?presigned_url={{ presigned_url|urlencode }}">Download</a></p>
     {% endif %}
+    <a href="{% url 'sales:home' %}">Home</a>
 
 </body>
 </html>

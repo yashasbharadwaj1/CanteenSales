@@ -4,7 +4,7 @@ import requests
 import tempfile
 import pandas as pd
 from django.shortcuts import render
-from django.http import JsonResponse,HttpResponse
+from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Inventory, Sales, Expenditure, Product
@@ -14,7 +14,7 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
 import requests
-from urllib.parse import unquote, urlencode, urlparse, urlunparse 
+from urllib.parse import unquote, urlencode, urlparse, urlunparse
 
 load_dotenv()
 
@@ -155,7 +155,23 @@ def calculate_actual_profit_for_month(month, year):
         }
 
         results.append(result)
-
+    total_result = {
+        "year": year,
+        "month": month,
+        "product_name": "all",
+        "pieces": sum(entry["pieces"] for entry in results),
+        "cost_price_per_piece": sum(entry["cost_price_per_piece"] for entry in results),
+        "selling_price_per_piece": sum(
+            entry["selling_price_per_piece"] for entry in results
+        ),
+        "pieces_sold": sum(entry["pieces_sold"] for entry in results),
+        "total_selling_price": sum(entry["total_selling_price"] for entry in results),
+        "total_cost_price": sum(entry["total_cost_price"] for entry in results),
+        "profit": sum(entry["profit"] for entry in results),
+        "expenditure": sum(entry["expenditure"] for entry in results),
+        "actual_profit": sum(entry["actual_profit"] for entry in results),
+    }
+    results.append(total_result)
     return results
 
 
@@ -163,7 +179,7 @@ def home(request):
     return render(request, "home.html")
 
 
-@api_view(['POST', 'GET'])
+@api_view(["POST", "GET"])
 def generate_daily_profit(request):
     if request.method == "POST":
         try:
@@ -171,28 +187,36 @@ def generate_daily_profit(request):
             date = datetime.strptime(date_str, "%Y-%m-%d").date()
             filename = f"daily_report_{date}.xlsx"
             s3_key = f"{S3_FOLDER_DAILY}{filename}"
-            
+
             # Check if the file exists in S3
             try:
                 s3_client.head_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
-                logger.info(f'{filename}.xlsx already exists') 
-                presigned_url = generate_presigned_url(s3_key) 
+                logger.info(f"{filename}.xlsx already exists")
+                presigned_url = generate_presigned_url(s3_key)
                 if presigned_url is not None:
-                    return render(request, 'daily_sales.html', {"success": True, "presigned_url":presigned_url})
+                    return render(
+                        request,
+                        "daily_sales.html",
+                        {"success": True, "presigned_url": presigned_url},
+                    )
                 else:
-                    return JsonResponse({"msg":"unable to generate presigned url"})
+                    return JsonResponse({"msg": "unable to generate presigned url"})
             except:
-                results = calculate_daily_profit(date) 
+                results = calculate_daily_profit(date)
                 if results is None:
                     return JsonResponse({"message": f"No results found for {date}"})
                 else:
                     excel_file_path = generate_excel_file(results, filename)
-                    upload_to_s3(excel_file_path, S3_FOLDER_DAILY, f'{filename}')
-                    presigned_url = generate_presigned_url(s3_key) 
+                    upload_to_s3(excel_file_path, S3_FOLDER_DAILY, f"{filename}")
+                    presigned_url = generate_presigned_url(s3_key)
                     if presigned_url is not None:
-                        return render(request, 'daily_sales.html', {"success": True, "presigned_url":presigned_url})
+                        return render(
+                            request,
+                            "daily_sales.html",
+                            {"success": True, "presigned_url": presigned_url},
+                        )
                     else:
-                        return JsonResponse({"msg":"unable to generate presigned url"})
+                        return JsonResponse({"msg": "unable to generate presigned url"})
         except ValueError:
             logger.exception("Error in daily_sales: Invalid date format")
             return JsonResponse(
@@ -210,16 +234,45 @@ def generate_daily_profit(request):
     return render(request, "daily_sales.html", {"filename": ""})
 
 
-
-
-@api_view(['POST','GET'])
+@api_view(["POST", "GET"])
 def generate_monthly_profit(request):
     if request.method == "POST":
         try:
             month = int(request.POST.get("month"))
             year = int(request.POST.get("year"))
-            resp = calculate_actual_profit_for_month(month, year)
-            return JsonResponse(resp)
+            filename = f"monthly_report_{month}_{year}.xlsx"
+            s3_key = f"{S3_FOLDER_MONTHLY}{filename}"
+            # Check if the file exists in S3
+            try:
+                s3_client.head_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+                logger.info(f"{filename}.xlsx already exists")
+                presigned_url = generate_presigned_url(s3_key)
+                if presigned_url is not None:
+                    return render(
+                        request,
+                        "monthly_sales.html",
+                        {"success": True, "presigned_url": presigned_url},
+                    )
+                else:
+                    return JsonResponse({"msg": "unable to generate presigned url"})
+            except:
+                results = calculate_actual_profit_for_month(month, year)
+                if results is None:
+                    return JsonResponse(
+                        {"message": f"No results found for {month}_{year}"}
+                    )
+                else:
+                    excel_file_path = generate_excel_file(results, filename)
+                    upload_to_s3(excel_file_path, S3_FOLDER_MONTHLY, f"{filename}")
+                    presigned_url = generate_presigned_url(s3_key)
+                    if presigned_url is not None:
+                        return render(
+                            request,
+                            "monthly_sales.html",
+                            {"success": True, "presigned_url": presigned_url},
+                        )
+                    else:
+                        return JsonResponse({"msg": "unable to generate presigned url"})
         except ValueError:
             logger.exception("Error in monthly_sales: Invalid month or year format")
             return JsonResponse(
@@ -233,45 +286,50 @@ def generate_monthly_profit(request):
                     "msg": "An error occurred while processing the request.",
                 }
             )
-   
+
     return render(request, "monthly_sales.html")
 
 
 def download_excel(request):
-    presigned_url = unquote(request.GET.get('presigned_url', ''))
+    presigned_url = unquote(request.GET.get("presigned_url", ""))
 
     try:
         # Parse the presigned URL
         parsed_url = urlparse(presigned_url)
 
         # Extract and decode query parameters
-        query_params = dict(qp.split('=', 1) for qp in parsed_url.query.split('&'))
+        query_params = dict(qp.split("=", 1) for qp in parsed_url.query.split("&"))
         decoded_query_params = {k: unquote(v) for k, v in query_params.items()}
 
         # Reconstruct the URL with decoded query parameters
-        decoded_presigned_url = urlunparse(parsed_url._replace(query=urlencode(decoded_query_params)))
+        decoded_presigned_url = urlunparse(
+            parsed_url._replace(query=urlencode(decoded_query_params))
+        )
         print("Decoded Presigned URL:", decoded_presigned_url)
 
         response = requests.get(decoded_presigned_url)
-        
+
         if response.status_code == 200:
             # Set the content type and headers for the response
-            content_type = response.headers.get('Content-Type', 'application/octet-stream')
+            content_type = response.headers.get(
+                "Content-Type", "application/octet-stream"
+            )
             content_disposition = 'attachment; filename="downloaded_file.xlsx"'
-            
+
             # Create an HttpResponse with the file content
             response = HttpResponse(response.content, content_type=content_type)
-            response['Content-Disposition'] = content_disposition
+            response["Content-Disposition"] = content_disposition
             return response
         else:
             print("Error Response Content:", response.content)
             print("Error Response Headers:", response.headers)
-            return HttpResponse(f"Error downloading file. Status code: {response.status_code}", status=500)
+            return HttpResponse(
+                f"Error downloading file. Status code: {response.status_code}",
+                status=500,
+            )
     except Exception as e:
         return HttpResponse(f"Error downloading file: {str(e)}", status=500)
 
-
-    
 
 def generate_presigned_url(s3_key):
     try:
