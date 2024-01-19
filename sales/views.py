@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 # AWS S3 Configuration
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = "canteensales"
-AWS_REGION = "us-east-1"
+AWS_STORAGE_BUCKET_NAME = "canteensales-staging"
+AWS_REGION = "ap-south-1"
 S3_FOLDER_DAILY = "daily_reports/"
 S3_FOLDER_MONTHLY = "monthly_reports/"
 s3_client = boto3.client(
