@@ -293,6 +293,8 @@ def generate_monthly_profit(request):
 
     return render(request, "monthly_sales.html")
 
+def reports(request):
+    return render(request,'reports.html')
 
 def download_excel(request):
     presigned_url = unquote(request.GET.get("presigned_url", ""))
