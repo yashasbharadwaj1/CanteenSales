@@ -40,13 +40,12 @@ class Sales(models.Model):
 
 class Expenditure(models.Model):
     date = models.DateField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     type = models.CharField(max_length=255)
     amount_spent = models.DecimalField(max_digits=8, decimal_places=2)
     def __str__(self):
         date = self.date 
-        product = self.product
-        return f"{product}_{date}"
+        type = self.type
+        return f"{type}_{date}"
     
 
 

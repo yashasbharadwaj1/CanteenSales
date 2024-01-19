@@ -118,7 +118,7 @@ def calculate_actual_profit_for_month(month, year):
 
         # Fetch expenditures for the specific product, month, and year
         expenditures = Expenditure.objects.filter(
-            product=product, date__month=month, date__year=year
+            date__month=month, date__year=year
         )
         aggregated_result = expenditures.aggregate(Sum("amount_spent"))
         total_expenditure_raw = aggregated_result["amount_spent__sum"]
@@ -139,7 +139,6 @@ def calculate_actual_profit_for_month(month, year):
         total_selling_price = pieces_sold_sum * selling_price_per_piece
         total_cost_price = pieces_sold_sum * cost_price_per_piece
         total_profit = total_selling_price - total_cost_price
-        actual_profit = total_profit - total_expenditure
 
         result = {
             "year": year,
@@ -152,8 +151,6 @@ def calculate_actual_profit_for_month(month, year):
             "total_selling_price": total_selling_price,
             "total_cost_price": total_cost_price,
             "profit": total_profit,
-            "expenditure": total_expenditure,
-            "actual_profit": actual_profit,
         }
 
         results.append(result) 
@@ -172,8 +169,8 @@ def calculate_actual_profit_for_month(month, year):
         "total_selling_price": sum(entry["total_selling_price"] for entry in results),
         "total_cost_price": sum(entry["total_cost_price"] for entry in results),
         "profit": sum(entry["profit"] for entry in results),
-        "expenditure": sum(entry["expenditure"] for entry in results),
-        "actual_profit": sum(entry["actual_profit"] for entry in results),
+        "total_expenditure":total_expenditure,
+        "actual_profit": sum(entry["profit"] for entry in results) - total_expenditure,
     }
     results.append(total_result)
     return results
