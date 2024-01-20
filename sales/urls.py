@@ -9,6 +9,5 @@ urlpatterns = [
     path('reports/',reports,name='reports'),
     path('api/generate-daily-profit/', generate_daily_profit, name='generate_daily_profit'),
     path('api/generate-monthly-profit/', generate_monthly_profit, name='generate_monthly_profit'),
-    path('api/download-excel/', download_excel, name='download_excel'),
-    
+    path('api/download-excel/', download_excel, name='download_excel'), 
 ]
