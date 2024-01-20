@@ -2,7 +2,7 @@ from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    product_image = models.ImageField(upload_to='products/',default='products/default.jpeg')
+    product_image = models.ImageField(upload_to='products/',default='products/default.jpeg',null=True, blank=True)
     class Meta:
         verbose_name_plural = "Products" 
     
