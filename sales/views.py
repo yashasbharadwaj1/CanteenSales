@@ -15,6 +15,8 @@ from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
 import requests
 from urllib.parse import unquote, urlencode, urlparse, urlunparse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 load_dotenv()
 
@@ -117,9 +119,7 @@ def calculate_actual_profit_for_month(month, year):
             continue
 
         # Fetch expenditures for the specific product, month, and year
-        expenditures = Expenditure.objects.filter(
-            date__month=month, date__year=year
-        )
+        expenditures = Expenditure.objects.filter(date__month=month, date__year=year)
         aggregated_result = expenditures.aggregate(Sum("amount_spent"))
         total_expenditure_raw = aggregated_result["amount_spent__sum"]
         total_expenditure = total_expenditure_raw or 0
@@ -132,7 +132,7 @@ def calculate_actual_profit_for_month(month, year):
         sales = Sales.objects.filter(date__month=month, product=product).aggregate(
             Sum("pieces_sold")
         )
-        pieces_sold_sum = sales["pieces_sold__sum"] or 0 
+        pieces_sold_sum = sales["pieces_sold__sum"] or 0
         if pieces_sold_sum == 0 and total_expenditure == 0:
             continue
         total_pieces_sold_sum += pieces_sold_sum
@@ -153,7 +153,7 @@ def calculate_actual_profit_for_month(month, year):
             "profit": total_profit,
         }
 
-        results.append(result) 
+        results.append(result)
     if total_pieces_sold_sum == 0:
         return None
     total_result = {
@@ -169,15 +169,30 @@ def calculate_actual_profit_for_month(month, year):
         "total_selling_price": sum(entry["total_selling_price"] for entry in results),
         "total_cost_price": sum(entry["total_cost_price"] for entry in results),
         "profit": sum(entry["profit"] for entry in results),
-        "total_expenditure":total_expenditure,
+        "total_expenditure": total_expenditure,
         "actual_profit": sum(entry["profit"] for entry in results) - total_expenditure,
     }
     results.append(total_result)
     return results
 
 
+@csrf_exempt
 def home(request):
-    return render(request, "home.html")
+    if request.method == "POST":
+        selected_date = request.POST.get("selected_date")
+        all_data_json = request.POST.get("all_data")
+        # Convert the JSON string to a Python list
+        all_data = json.loads(all_data_json)
+        # Process the data sent from the frontend
+        print("Selected Date:", selected_date)
+
+        for data in all_data:
+            logger.info(
+                f"Product ID: {data['productId']}, Product Name: {data['productName']}, Pieces Sold: {data['piecesSold']}"
+            )
+
+    products = Product.objects.all()
+    return render(request, "home.html", {"products": products})
 
 
 @api_view(["POST", "GET"])
@@ -205,7 +220,9 @@ def generate_daily_profit(request):
             except:
                 results = calculate_daily_profit(date)
                 if results is None:
-                    return JsonResponse({"message": f"Daily report not found  for {date}"})
+                    return JsonResponse(
+                        {"message": f"Daily report not found  for {date}"}
+                    )
                 else:
                     excel_file_path = generate_excel_file(results, filename)
                     upload_to_s3(excel_file_path, S3_FOLDER_DAILY, f"{filename}")
@@ -290,8 +307,10 @@ def generate_monthly_profit(request):
 
     return render(request, "monthly_sales.html")
 
+
 def reports(request):
-    return render(request,'reports.html')
+    return render(request, "reports.html")
+
 
 def download_excel(request):
     presigned_url = unquote(request.GET.get("presigned_url", ""))
