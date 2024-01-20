@@ -159,66 +159,65 @@
     let submitBtn = document.querySelector(".submit-btn");
 
     function submitAction() {
-      let selectedDate = datepicker.value;
-      let data = [];
+        let selectedDate = datepicker.value;
+        let data = [];
 
-      // Collect data for each product
-      for (let i = 0; i < counts.length; i++) {
-        let productId = counts[i].id.split("-")[1];
-        let productName = document.querySelector(`.card:nth-child(${i + 3}) .card-text`).innerText;
-        let piecesSold = counts[i].innerText;
+        // Collect data for each product
+        for (let i = 0; i < counts.length; i++) {
+            let productId = counts[i].id.split("-")[1];
+            let piecesSold = counts[i].innerText;
 
-        data.push({
-          productId: productId,
-          productName: productName,
-          piecesSold: piecesSold,
-        });
-      }
+            data.push({
+                productId: productId,
+                piecesSold: piecesSold,
+            });
+        }
 
-      // Perform your submission logic here
-      console.log("Selected Date:", selectedDate);
-      console.log("All Data:", data);
+        // Perform your submission logic here
+        console.log("Selected Date:", selectedDate);
+        console.log("All Data:", data);
 
-      // Update the form and submit
-      let form = document.createElement("form");
-      form.method = "post";
-      form.action = "{% url 'sales:home' %}";
+        // Update the form and submit
+        let form = document.createElement("form");
+        form.method = "post";
+        form.action = "{% url 'sales:home' %}";
 
-      let dateInput = document.createElement("input");
-      dateInput.type = "hidden";
-      dateInput.name = "selected_date";
-      dateInput.value = selectedDate;
+        let dateInput = document.createElement("input");
+        dateInput.type = "hidden";
+        dateInput.name = "selected_date";
+        dateInput.value = selectedDate;
 
-      let dataInput = document.createElement("input");
-      dataInput.type = "hidden";
-      dataInput.name = "all_data";
-      dataInput.value = JSON.stringify(data);
+        let dataInput = document.createElement("input");
+        dataInput.type = "hidden";
+        dataInput.name = "all_data";
+        dataInput.value = JSON.stringify(data);
 
-      form.appendChild(dateInput);
-      form.appendChild(dataInput);
+        form.appendChild(dateInput);
+        form.appendChild(dataInput);
 
-      document.body.appendChild(form);
-      form.submit();
+        document.body.appendChild(form);
+        form.submit();
     }
 
     datepicker.addEventListener("input", () => {
-      submitBtn.disabled = !datepicker.value; // Disable button if date is not selected
+        submitBtn.disabled = !datepicker.value; // Disable button if date is not selected
     });
 
     for (let i = 0; i < minusBtns.length; i++) {
-      minusBtns[i].addEventListener("click", () => {
-        updateCount(i, -1);
-      });
-      plusBtns[i].addEventListener("click", () => {
-        updateCount(i, 1);
-      });
+        minusBtns[i].addEventListener("click", () => {
+            updateCount(i, -1);
+        });
+        plusBtns[i].addEventListener("click", () => {
+            updateCount(i, 1);
+        });
     }
 
     function updateCount(index, delta) {
-      let countNum = parseInt(counts[index].innerText);
-      countNum += delta;
-      counts[index].innerText = countNum < 0 ? 0 : countNum;
+        let countNum = parseInt(counts[index].innerText);
+        countNum += delta;
+        counts[index].innerText = countNum < 0 ? 0 : countNum;
     }
-  </script>
+</script>
+
 </body>
 </html>
