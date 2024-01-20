@@ -189,8 +189,20 @@ def home(request):
 
         for data in all_data:
             logger.info(
-                f"Product ID: {data['productId']}, Product Name: {data['productName']}, Pieces Sold: {data['piecesSold']}"
+                f"Product ID: {data['productId']}, Pieces Sold: {data['piecesSold']}"
             )
+            product_id = data['productId']
+            pieces_sold = data['piecesSold']
+
+            # Create Sales object
+            product = Product.objects.get(id=product_id)
+            sales_entry = Sales.objects.create(
+                date=selected_date,
+                product=product,
+                pieces_sold=pieces_sold
+            )
+            sales_entry.save()
+        return JsonResponse({"message":"Data saved succeessfully"})
 
     products = Product.objects.all()
     return render(request, "home.html", {"products": products})
