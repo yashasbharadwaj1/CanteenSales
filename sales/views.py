@@ -179,31 +179,36 @@ def calculate_actual_profit_for_month(month, year):
 @csrf_exempt
 def home(request):
     if request.method == "POST":
-        
         selected_date = request.POST.get("selected_date")
         all_data_json = request.POST.get("all_data")
-        # Convert the JSON string to a Python list
         all_data = json.loads(all_data_json)
-        # Process the data sent from the frontend
-        print("Selected Date:", selected_date)
 
         for data in all_data:
+            product_id = data['productId']
+            pieces_sold = int(data['piecesSold'])
             logger.info(
                 f"Product ID: {data['productId']}, Pieces Sold: {data['piecesSold']}"
             )
-            product_id = data['productId']
-            pieces_sold = data['piecesSold']
 
-            # Create Sales object
-            product = Product.objects.get(id=product_id)
-            sales_entry = Sales.objects.create(
-                date=selected_date,
-                product=product,
-                pieces_sold=pieces_sold
-            )
-            sales_entry.save()
-        return JsonResponse({"message":"Data saved succeessfully"})
+            # Check if a Sales entry with the same date and product exists
+            existing_entry = Sales.objects.filter(date=selected_date, product__id=product_id).first()
 
+            if existing_entry:
+                # Update existing entry by adding pieces_sold
+                existing_entry.pieces_sold += pieces_sold
+                existing_entry.save()
+            else:
+                # Create a new Sales entry
+                product = Product.objects.get(id=product_id)
+                sales_entry = Sales.objects.create(
+                    date=selected_date,
+                    product=product,
+                    pieces_sold=pieces_sold
+                )
+                sales_entry.save()
+
+        return render(request, "success.html", {"message": "Data saved successfully"})
+    
     products = Product.objects.all()
     return render(request, "home.html", {"products": products})
 
