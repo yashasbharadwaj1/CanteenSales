@@ -1,219 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
-    <title>Home</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f8f9fa;
-      }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+    crossorigin="anonymous"
+  />
+  <title>Home</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
 
-      .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
+    .card {
+      margin: 10px;
+      text-align: center;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      width: 18rem;
+    }
+
+    .card-img-top {
+      border-radius: 8px 8px 0 0;
+      object-fit: cover;
+      max-width: 100%;
+      height: 150px; /* Set a fixed height for uniformity */
+    }
+
+    .frame {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .center {
+      display: flex;
+      align-items: center;
+    }
+
+    .button {
+      text-align: center;
+    }
+
+    .col {
+      padding: 0;
+    }
+
+    #minus-btn,
+    #plus-btn {
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+
+    #count {
+      margin: 0;
+      font-size: 24px;
+      padding: 0 10px;
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #datepicker {
+      margin-bottom: 20px;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+      background-color: #fff; /* Set a background color */
+      color: #495057; /* Set text color */
+      border: 1px solid #ced4da; /* Add a border for clarity */
+      border-radius: 4px; /* Add border radius for a cleaner look */
+    }
+
+    /* Media Queries for Mobile View */
+    @media (max-width: 768px) {
       .card {
-        margin: 10px;
-        text-align: center;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        width: 18rem;
-      }
-
-      .card-img-top {
-        border-radius: 8px 8px 0 0;
-        object-fit: cover;
-        max-width: 100%;
-        height: 150px;
-      }
-
-      .frame {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10px;
-      }
-
-      .center {
-        display: flex;
-        align-items: center;
-      }
-
-      .button {
-        text-align: center;
-      }
-
-      .col {
-        padding: 0;
-      }
-
-      #minus-btn,
-      #plus-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-      }
-
-      #count {
-        margin: 0;
-        font-size: 24px;
-        padding: 0 10px;
-      }
-
-      .submit-btn {
-        margin-top: 20px;
-        background-color: #28a745;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 10px 20px;
-        cursor: pointer;
         width: 100%;
-        box-sizing: border-box;
       }
-
-      #datepicker {
-        margin-bottom: 20px;
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        font-size: 16px; /* Adjust font size for better visibility on mobile */
-      }
-
-      /* Media Queries for Mobile View */
-      @media (max-width: 768px) {
-        .card {
-          width: 100%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <input type="date" id="datepicker" required>
-      {% for product in products %}
-      <div class="card">
-        <img
-          src="{{ product.product_image.url }}"
-          class="card-img-top"
-          alt="..."
-        />
-        <div class="card-body">
-          <p class="card-text">{{ product.name }}</p>
-        </div>
-        <div class="frame">
-          <div class="center container">
-            <div class="button col col-4">
-              <button class="btn btn-secondary minus-btn">-</button>
-            </div>
-            <div class="number col col-4">
-              <h1 id="count-{{ product.id }}" class="count">0</h1>
-            </div>
-            <div class="button col col-4">
-              <button class="btn btn-secondary plus-btn">+</button>
-            </div>
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <input type="date" id="datepicker" required>
+    {% for product in products %}
+    <div class="card">
+      <img
+        src="{{ product.product_image.url }}"
+        class="card-img-top"
+        alt="..."
+      />
+      <div class="card-body">
+        <p class="card-text">{{ product.name }}</p>
+      </div>
+      <div class="frame">
+        <div class="center container">
+          <div class="button col col-4">
+            <button class="btn btn-secondary minus-btn">-</button>
+          </div>
+          <div class="number col col-4">
+            <h1 id="count-{{ product.id }}" class="count">0</h1>
+          </div>
+          <div class="button col col-4">
+            <button class="btn btn-secondary plus-btn">+</button>
           </div>
         </div>
       </div>
-      {% endfor %}
-      <button class="btn btn-success submit-btn" onclick="submitAction()" disabled>Submit</button>
     </div>
+    {% endfor %}
+    <button class="btn btn-success submit-btn" onclick="submitAction()" disabled>Submit</button>
+  </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      let minusBtns = document.querySelectorAll(".minus-btn");
-      let counts = document.querySelectorAll(".count");
-      let plusBtns = document.querySelectorAll(".plus-btn");
-      let datepicker = document.getElementById("datepicker");
-      let submitBtn = document.querySelector(".submit-btn");
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    let minusBtns = document.querySelectorAll(".minus-btn");
+    let counts = document.querySelectorAll(".count");
+    let plusBtns = document.querySelectorAll(".plus-btn");
+    let datepicker = document.getElementById("datepicker");
+    let submitBtn = document.querySelector(".submit-btn");
 
-      function submitAction() {
-        let selectedDate = datepicker.value;
-        let data = [];
+    function submitAction() {
+      let selectedDate = datepicker.value;
+      let data = [];
 
-        // Collect data for each product
-        for (let i = 0; i < counts.length; i++) {
-          let productId = counts[i].id.split("-")[1];
-          let productName = document.querySelector(`.card:nth-child(${i + 2}) .card-text`).innerText;
-          let piecesSold = counts[i].innerText;
+      // Collect data for each product
+      for (let i = 0; i < counts.length; i++) {
+        let productId = counts[i].id.split("-")[1];
+        let productName = document.querySelector(`.card:nth-child(${i + 2}) .card-text`).innerText;
+        let piecesSold = counts[i].innerText;
 
-          data.push({
-            productId: productId,
-            productName: productName,
-            piecesSold: piecesSold,
-          });
-        }
-
-        // Perform your submission logic here
-        console.log("Selected Date:", selectedDate);
-        console.log("All Data:", data);
-
-        // Update the form and submit
-        let form = document.createElement("form");
-        form.method = "post";
-        form.action = "{% url 'sales:home' %}";
-
-        let dateInput = document.createElement("input");
-        dateInput.type = "hidden";
-        dateInput.name = "selected_date";
-        dateInput.value = selectedDate;
-
-        let dataInput = document.createElement("input");
-        dataInput.type = "hidden";
-        dataInput.name = "all_data";
-        dataInput.value = JSON.stringify(data);
-
-        form.appendChild(dateInput);
-        form.appendChild(dataInput);
-
-        document.body.appendChild(form);
-        form.submit();
+        data.push({
+          productId: productId,
+          productName: productName,
+          piecesSold: piecesSold,
+        });
       }
 
-      datepicker.addEventListener("input", () => {
-        submitBtn.disabled = !datepicker.value; // Disable button if date is not selected
+      // Perform your submission logic here
+      console.log("Selected Date:", selectedDate);
+      console.log("All Data:", data);
+
+      // Update the form and submit
+      let form = document.createElement("form");
+      form.method = "post";
+      form.action = "{% url 'sales:home' %}";
+
+      let dateInput = document.createElement("input");
+      dateInput.type = "hidden";
+      dateInput.name = "selected_date";
+      dateInput.value = selectedDate;
+
+      let dataInput = document.createElement("input");
+      dataInput.type = "hidden";
+      dataInput.name = "all_data";
+      dataInput.value = JSON.stringify(data);
+
+      form.appendChild(dateInput);
+      form.appendChild(dataInput);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    datepicker.addEventListener("input", () => {
+      submitBtn.disabled = !datepicker.value; // Disable button if date is not selected
+    });
+
+    for (let i = 0; i < minusBtns.length; i++) {
+      minusBtns[i].addEventListener("click", () => {
+        updateCount(i, -1);
       });
+      plusBtns[i].addEventListener("click", () => {
+        updateCount(i, 1);
+      });
+    }
 
-      for (let i = 0; i < minusBtns.length; i++) {
-        minusBtns[i].addEventListener("click", () => {
-          updateCount(i, -1);
-        });
-        plusBtns[i].addEventListener("click", () => {
-          updateCount(i, 1);
-        });
-      }
-
-      function updateCount(index, delta) {
-        let countNum = parseInt(counts[index].innerText);
-        countNum += delta;
-        counts[index].innerText = countNum < 0 ? 0 : countNum;
-      }
-    </script>
-  </body>
+    function updateCount(index, delta) {
+      let countNum = parseInt(counts[index].innerText);
+      countNum += delta;
+      counts[index].innerText = countNum < 0 ? 0 : countNum;
+    }
+  </script>
+</body>
 </html>
