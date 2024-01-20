@@ -15,7 +15,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       background-color: #f8f9fa;
     }
@@ -30,7 +30,7 @@
     }
 
     #datepicker {
-      margin-bottom: 20px;
+      margin-top: 20px;
       width: 100%;
       padding: 10px;
       box-sizing: border-box;
@@ -46,7 +46,7 @@
       text-align: center;
       border: 1px solid #dee2e6;
       border-radius: 8px;
-      width: 18rem;
+      width: calc(33.33% - 20px);
     }
 
     .card-img-top {
@@ -116,7 +116,7 @@
 </head>
 <body>
   <div class="container">
-    <input type="date" id="datepicker" required>
+    <h2>Products</h2>
     {% for product in products %}
     <div class="card">
       <img
@@ -142,6 +142,7 @@
       </div>
     </div>
     {% endfor %}
+    <input type="date" id="datepicker" required>
     <button class="btn btn-success submit-btn" onclick="submitAction()" disabled>Submit</button>
   </div>
 
@@ -164,7 +165,7 @@
       // Collect data for each product
       for (let i = 0; i < counts.length; i++) {
         let productId = counts[i].id.split("-")[1];
-        let productName = document.querySelector(`.card:nth-child(${i + 2}) .card-text`).innerText;
+        let productName = document.querySelector(`.card:nth-child(${i + 3}) .card-text`).innerText;
         let piecesSold = counts[i].innerText;
 
         data.push({
