@@ -179,6 +179,7 @@ def calculate_actual_profit_for_month(month, year):
 @csrf_exempt
 def home(request):
     if request.method == "POST":
+        
         selected_date = request.POST.get("selected_date")
         all_data_json = request.POST.get("all_data")
         # Convert the JSON string to a Python list
