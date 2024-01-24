@@ -17,6 +17,7 @@ import requests
 from urllib.parse import unquote, urlencode, urlparse, urlunparse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from datetime import timedelta
 
 load_dotenv()
 
@@ -184,35 +185,106 @@ def home(request):
         all_data = json.loads(all_data_json)
 
         for data in all_data:
-            product_id = data['productId']
-            pieces_sold = int(data['piecesSold'])
+            product_id = data["productId"]
+            pieces_sold = int(data["piecesSold"])
             logger.info(
                 f"Product ID: {data['productId']}, Pieces Sold: {data['piecesSold']}"
             )
+            product = Product.objects.get(id=product_id) 
+            product_name = product.name
 
             # Check if a Sales entry with the same date and product exists
-            existing_entry = Sales.objects.filter(date=selected_date, product__id=product_id).first()
+            existing_entry = Sales.objects.filter(
+                date=selected_date, product__id=product_id
+            ).first()
+            existing_inventory = Inventory.objects.filter(
+                date=selected_date, product__id=product_id
+            ).first()
 
             if existing_entry:
                 # Update existing entry by adding pieces_sold
                 existing_entry.pieces_sold += pieces_sold
                 existing_entry.save()
+
             else:
                 # Create a new Sales entry
                 product = Product.objects.get(id=product_id)
+
                 sales_entry = Sales.objects.create(
-                    date=selected_date,
-                    product=product,
-                    pieces_sold=pieces_sold
+                    date=selected_date, product=product, pieces_sold=pieces_sold
                 )
                 sales_entry.save()
+            if existing_inventory:
+                existing_inventory.total_pieces = (
+                    existing_inventory.total_pieces - pieces_sold
+                )
+                existing_inventory.save()
+            else:
+                yesterday = datetime.strptime(selected_date, "%Y-%m-%d") - timedelta(
+                    days=1
+                )
+                yesterday_inventory = Inventory.objects.filter(
+                    date=yesterday, product__id=product_id
+                ).first()
+
+                #
+                start_of_month = datetime.strptime(selected_date, "%Y-%m-%d").replace(
+                    day=1
+                )
+                start_of_month_inventory = Inventory.objects.filter(
+                    date=start_of_month, product__id=product_id
+                ).first()
+
+                if yesterday_inventory:
+                    logger.info(
+                        f"looking for yesterday {yesterday} for product {product_name}"
+                    )
+                    yesterdays_total_pieces = yesterday_inventory.total_pieces
+                    reduced_pieces = yesterdays_total_pieces - pieces_sold
+
+                    cp_per_piece = yesterday_inventory.cost_price_per_piece
+                    sp_per_piece = yesterday_inventory.selling_price_per_piece
+
+                    new_inventory = Inventory.objects.create(
+                        date=selected_date,
+                        product=Product.objects.get(id=product_id),
+                        total_pieces=reduced_pieces,
+                        cost_price_per_piece=cp_per_piece,
+                        selling_price_per_piece=sp_per_piece,
+                    )
+                    new_inventory.save()
+
+                elif start_of_month_inventory:
+                    logger.info(
+                        f"looking for start of month {start_of_month} for product {product_name}"
+                    )
+
+                    total_pieces_at_start_of_month = (
+                        start_of_month_inventory.total_pieces
+                    )
+                    reduced_pieces = total_pieces_at_start_of_month - pieces_sold
+
+                    cp_per_piece = start_of_month_inventory.cost_price_per_piece
+                    sp_per_piece = start_of_month_inventory.selling_price_per_piece
+
+                    new_inventory = Inventory.objects.create(
+                        date=selected_date,
+                        product=Product.objects.get(id=product_id),
+                        total_pieces=reduced_pieces,
+                        cost_price_per_piece=cp_per_piece,
+                        selling_price_per_piece=sp_per_piece,
+                    )
+                    new_inventory.save()
+
+                else:
+                    msg = f"neither yesterdays nor start of month inventory is present for product {product_name}"
+                    logger.info(msg)
+                    return render(request, "success.html", {"message": msg})
 
         return render(request, "success.html", {"message": "Data saved successfully"})
-    
+
     products = Product.objects.all()
     return render(request, "home.html", {"products": products})
-    
-
 
 
 @api_view(["POST", "GET"])
