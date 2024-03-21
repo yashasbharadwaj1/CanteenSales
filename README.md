@@ -28,9 +28,3 @@ Functionalities :
 
 
 
-<img width="438" alt="canteen-sales-6" src="https://github.com/yashasbharadwaj1/CanteenSales/assets/71028991/d5c46df1-45c8-4aae-a9d5-1d510bee7cc3"> 
-
-<img width="839" alt="canteen-sales-8" src="https://github.com/yashasbharadwaj1/CanteenSales/assets/71028991/be4910fc-b3c8-4106-8c24-e19cae7ca565">
-
-
-
